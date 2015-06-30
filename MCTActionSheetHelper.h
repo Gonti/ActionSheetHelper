@@ -3,10 +3,9 @@
 
 @interface MCTActionSheetHelper : NSObject
 
-- (id)initWithViewController:(UIViewController *)controller;
-- (id)initWithViewController:(UIViewController *)controller Array:(NSArray *)sortedTitles Dictionary:(NSDictionary *)blocksAndTitiles;
+- (id)initWithViewController:(UIViewController *)controller cancelButtonTitle:(NSString *)cancel;
+- (id)initWithViewController:(UIViewController *)controller array:(NSArray *)sortedTitles dictionary:(NSDictionary *)blocksAndTitiles cancelButtonTitle:(NSString *)cancel;
 - (void)presentActionSheet;
 - (void)addTitle:(NSString *)title WithAction:(void (^)(UIAlertAction *action))blockAction;
-- (void)clearActionSheet;
 
 @end
