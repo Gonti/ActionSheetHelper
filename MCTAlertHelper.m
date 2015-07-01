@@ -16,16 +16,41 @@
 
 @implementation MCTAlertHelper
 
-- (id)initWithViewController:(UIViewController *)controller cancelButtonTitle:(NSString *)cancel style:(UIAlertControllerStyle)style title:(NSString *)title message:(NSString *)message {
-    return [self initWithViewController:controller array:[[NSArray alloc] init] dictionary:[[NSDictionary alloc] init] cancelButtonTitle:cancel style:style title:title message:message];
+- (id)initWithViewController:(UIViewController *)controller
+           cancelButtonTitle:(NSString *)cancel
+                       style:(UIAlertControllerStyle)style
+                       title:(NSString *)title
+                     message:(NSString *)message {
+    
+    return [self initWithViewController:controller array:nil dictionary:nil cancelButtonTitle:cancel style:style title:title message:message];
 }
 
-- (id)initWithViewController:(UIViewController *)controller array:(NSArray *)sortedTitles dictionary:(NSDictionary *)blocksAndTitiles cancelButtonTitle:(NSString *)cancel style:(UIAlertControllerStyle)style title:(NSString *)title message:(NSString *)message {
+- (id)initWithViewController:(UIViewController *)controller
+                       array:(NSArray *)sortedTitles
+                  dictionary:(NSDictionary *)blocksAndTitles
+           cancelButtonTitle:(NSString *)cancel
+                       style:(UIAlertControllerStyle)style
+                       title:(NSString *)title message:(NSString *)message {
+    
     self = [super init];
     if (self) {
+        if (blocksAndTitles) {
+            self.titlesAndActions = [blocksAndTitles mutableCopy];
+        }
+        else {
+            self.titlesAndActions = [[NSMutableDictionary alloc] init];
+        }
+        if (sortedTitles) {
+            self.sortedActions = [sortedTitles mutableCopy];
+        }
+        else {
+            self.sortedActions = [[NSMutableArray alloc] init];
+        }
+        
+        if (![[NSSet setWithArray:blocksAndTitles.allKeys] isEqualToSet:[NSSet setWithArray:sortedTitles]]) {
+            [NSException raise:@"Titles in Array and Dictionary dont match." format:@"%@ is not equal %@",[NSSet setWithArray:blocksAndTitles.allKeys],[NSSet setWithArray:sortedTitles]];
+        }
         self.controller = controller;
-        self.titlesAndActions = [blocksAndTitiles mutableCopy];
-        self.sortedActions = [sortedTitles mutableCopy];
         self.cancel = cancel;
         self.style = style;
         self.title = title;
@@ -37,7 +62,9 @@
 - (void)presentAlert {
     // iOS 8.x+
     if ([UIAlertController class]) {
-        UIAlertController* alertController = [UIAlertController alertControllerWithTitle:self.title message:self.message preferredStyle:self.style];
+        UIAlertController* alertController = [UIAlertController alertControllerWithTitle:self.title
+                                                                                 message:self.message
+                                                                          preferredStyle:self.style];
         for (NSString *title in self.sortedActions) {
             [alertController addAction:[UIAlertAction actionWithTitle:title
                                                                 style:UIAlertActionStyleDefault
@@ -65,9 +92,7 @@
 - (void)createAndDisplayActionSheet {
    self.actionSheet = [[UIActionSheet alloc] init];
     if (self.message) {
-        NSMutableString *titleAndMessage = [self.title mutableCopy];
-        [titleAndMessage appendFormat:@"\n\n"];
-        [titleAndMessage appendFormat:@"%@",self.message];
+        self.actionSheet.title = [NSString stringWithFormat:@"%@\n\n%@", self.title, self.message];
     }
     else {
         self.actionSheet.title = self.title;
